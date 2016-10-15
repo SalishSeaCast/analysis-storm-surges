@@ -1,4 +1,4 @@
-function [pred_all,pred_8,pred_no_shallow, tim] = generate_tidal_predictions(filename,location, starts, ends, type, exclude_long, cut_off)
+function [pred_all,pred_8,pred_no_shallow, tim] = generate_tidal_predictions(filename,location, starts, ends, type, exclude_long, cut_off, ssh_units, time_zone)
 % Uses t_tide to calculates tidal predictions for all siginificant 
 %constituents, 8 constituents, or all constituents except shallow water.
 %The 8 constituents are: M2,K1,O1,P1,Q1,N2,S2,K2
@@ -22,7 +22,13 @@ function [pred_all,pred_8,pred_no_shallow, tim] = generate_tidal_predictions(fil
 
 %cut_off is the cut_off amplitude for filtering large non-tidal energy from
 %the time series. A reasonable value is 0.3 This is only applied if a
-%harmonic analysis is necessary, 
+%harmonic analysis is necessary.
+
+%ssh_units is the units of the water level measurements in the time series file or amplitude in
+%the constituent file. 
+
+%time_zone is the time zone of the water level measurements in the time
+%series file or the phase in the constituent file
 
 %Outputs:
 %pred_all is a tidal prediction using all significant constituents
@@ -47,15 +53,19 @@ function [pred_all,pred_8,pred_no_shallow, tim] = generate_tidal_predictions(fil
 %default snr
 snr=2;
 if strcmp(type, 'DFO')
-    [tidestruc,lat,msl]=calculate_harmonics_filter(filename,location, cut_off);
+    [tidestruc,lat,msl]=calculate_harmonics_filter(filename,location, cut_off, ssh_units, time_zone);
+    msl_string='Mean sea level of observed time series';
 elseif strcmp(type,'NOAA')
-    [tidestruc,lat,msl]=calculate_harmonics_filter_NOAA(filename,location, cut_off);
+    [tidestruc,lat,msl]=calculate_harmonics_filter_NOAA(filename,location, cut_off,  ssh_units, time_zone);
+    msl_string='Mean sea level of observed time series';
 elseif strcmp(type, 'CHS')
     [tidestruc,lat,msl]=read_CHS_harmonics(filename);
     snr=0;
+    msl_string = 'Z0 constituent';
 elseif strcmp(type, 'NOAA_const')
     [tidestruc,lat,msl]=read_NOAA_harmonics(filename);
     snr=0;
+    msl_string = 'Z0 constituent';
 else print('Unrecognised type')
 end
 
@@ -169,12 +179,9 @@ n = length(tim);
 newfile = [location  '_tidal_prediction_' starts '_' ends '.csv'];
 fid = fopen(newfile, 'w');
 %add some headers
-fprintf(fid, 'Harmonics from: ,');
-fprintf(fid, '%s,\n',filename);
-fprintf(fid, 'Mean ,');
-fprintf(fid, '%f,\n',msl);
-fprintf(fid, 'Latitude ,');
-fprintf(fid, '%f,\n',lat);
+fprintf(fid, 'Harmonics from,%s,Time zone,%s,\n', filename, time_zone);
+fprintf(fid, 'Mean (%s),%f,%s,\n',ssh_units,msl, msl_string);
+fprintf(fid, 'Latitude,%f,\n',lat);
 fprintf(fid, 'Time_Local , pred_8 , pred_all , pred_noshallow \n');
 for row=1:n
     fprintf(fid, '%s ,', M(row,:));

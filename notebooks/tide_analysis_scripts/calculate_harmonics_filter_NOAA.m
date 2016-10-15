@@ -1,6 +1,6 @@
-function  [tidestruc, lat, mean_wl] = calculate_harmonics_filter_NOAA(csvfilename,location, cut_off)
+function  [tidestruc, lat, mean_wl] = calculate_harmonics_filter_NOAA(csvfilename,location, cut_off, ssh_units, time_zone)
 %caclulate_harmonics(csvfilename,location, start) Calculates tidal
-%harmonics at specifie location
+%harmonics at specified location
 %   Uses t_tide to write a file with tidal harmonics from a time series in
 %   csvfilename.
 %   location is a string of the location. 
@@ -8,6 +8,10 @@ function  [tidestruc, lat, mean_wl] = calculate_harmonics_filter_NOAA(csvfilenam
 %   long. Also avoid using surge-heavy years as that could over estimate
 %   the harmonics.
 %   periods when the filtered time series is > cut_off are removed. 
+%   ssh_units is the units of the water level measurements in the time series file or amplitude in
+%   the constituent file. 
+%   time_zone is the time zone of the water level measurements in the time
+%   series file or the phase in the constituent file
 %   returns the tidestruc from the ttide analysis, and the lat and mean sea
 %   level from the data file.
 %   Saves the harmonics in a file. 
@@ -21,7 +25,6 @@ fid = fopen(csvfilename);
 meas = textscan(fid,'%f-%f-%f %f:%f %f %f %f %f',...
     'HeaderLines',3, 'EmptyValue',NaN,'Delimiter',',');
 lat = csvread(csvfilename,1,1,[1,1,1,1]);
-lat
 fclose(fid);
 
 %Calculate dates from columns of data
@@ -48,12 +51,10 @@ mean_wl = nanmean(wlev_modified);
 harmonics_file = [location  '_harmonics_' datestr(start_date) '_' datestr(end_date) '_filter.csv'];
 fid = fopen(harmonics_file, 'w');
 %add some headers
-fprintf(fid, 'Mean \t');
-fprintf(fid, '%f\n',mean_wl);
-fprintf(fid, 'Latitude \t');
-fprintf(fid, '%f\n',lat);
+fprintf(fid, 'Mean (%s)\t %f\t Source file\t %s\n',ssh_units, mean_wl, csvfilename);
+fprintf(fid, 'Latitude\t %f\n',lat);
 
-fprintf(fid, 'Constituent \t freq \t amp (m) \t amp error \t phase (deg PST) \t phase error \n');
+fprintf(fid, 'Constituent \t freq \t amp (%s) \t amp error \t phase (deg %s) \t phase error \n', ssh_units,time_zone);
 for row=1:length(tidestruc.freq)
     fprintf(fid, '%s \t', tidestruc.name(row,:));
     fprintf(fid,' %f\t', tidestruc.freq(row));
