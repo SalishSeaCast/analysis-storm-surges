@@ -133,21 +133,20 @@ tim = start_date:1/24:end_date;
 pred_all = zeros(length(tim),1);
 pred_8 = zeros(length(tim),1);
 pred_no_shallow = zeros(length(tim),1);
-predcounter = 1;
 
-%Loop through years
-for yr = startyear:endyear
-    disp(yr)
-    I = tim >= datenum(yr,1,1) & tim < datenum(yr+1,1,1);
-    start_date = tim(I);
-    disp(datestr(start_date(1,1)))
-    
+%Loop times; Calculate nodal corrections daily
+step=24;
+for i = 1:step:length(tim)
+    if i+step-1 <=length(tim)
     %Get predicted tide for same period
-    pred_all(predcounter:predcounter+length(start_date)-1) = t_predic(tim(I),tidestruc,'latitude',lat,'synthesis',snr);
-    pred_8(predcounter:predcounter+length(start_date)-1) = t_predic(tim(I),tidestruc_8,'latitude',lat,'synthesis',snr); 
-    pred_no_shallow(predcounter:predcounter+length(start_date)-1) = t_predic(tim(I),tidestruc_noshallow,'latitude',lat,'synthesis',snr); 
-    predcounter = predcounter+length(start_date);
-    disp(predcounter)
+        pred_all(i:i+step-1) = t_predic(tim(i:i+step-1),tidestruc,'latitude',lat,'synthesis',snr);
+        pred_8(i:i+step-1) = t_predic(tim(i:i+step-1),tidestruc_8,'latitude',lat,'synthesis',snr); 
+        pred_no_shallow(i:i+step-1) = t_predic(tim(i:i+step-1),tidestruc_noshallow,'latitude',lat,'synthesis',snr);
+    else 
+        pred_all(i:end) = t_predic(tim(i:end),tidestruc,'latitude',lat,'synthesis',snr);
+        pred_8(i:end) = t_predic(tim(i:end),tidestruc_8,'latitude',lat,'synthesis',snr); 
+        pred_no_shallow(i:end) = t_predic(tim(i:end),tidestruc_noshallow,'latitude',lat,'synthesis',snr);
+    end
 end
 
 %% Plot 
