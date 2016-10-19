@@ -30,7 +30,7 @@ newmeas = zeros(length(tim),2);
 counter = 1;
 %tt is counter in created time
 for tt = 1:length(tim)
-    if time(counter) == tim(tt)
+    if abs(time(counter) - tim(tt)) < 1e-5
         newmeas(tt,1:2) = [time(counter), wlev(counter)];
         counter = counter + 1;
     else
@@ -39,7 +39,6 @@ for tt = 1:length(tim)
 end
 
 wlev = newmeas(:,2);
-
 
 %Creating doodson filter (NOAA book)
 ze=[0,5,8,10,13,15,16,18];
