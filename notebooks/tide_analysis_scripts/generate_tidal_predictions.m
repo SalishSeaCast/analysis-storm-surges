@@ -181,7 +181,7 @@ fid = fopen(newfile, 'w');
 fprintf(fid, 'Harmonics from,%s,Time zone,%s,\n', filename, time_zone);
 fprintf(fid, 'Mean (%s),%f,%s,\n',ssh_units,msl, msl_string);
 fprintf(fid, 'Latitude,%f,\n',lat);
-fprintf(fid, 'Time , pred_8 , pred_all , pred_noshallow \n');
+fprintf(fid, 'time , pred_8 , pred_all , pred_noshallow \n');
 for row=1:n
     fprintf(fid, '%s ,', M(row,:));
     fprintf(fid,' %f,', pred_8(row));
