@@ -126,7 +126,8 @@ end
 %Time
 start_date=datenum(starts);
 end_date=datenum(ends);
-tim = start_date:1/24:end_date;
+num_per_hr = 12
+tim = start_date:1/24/num_per_hour:end_date;
 
 [startyear,~,~,~,~,~] = datevec(tim(1));
 [endyear,~,~,~,~,~] = datevec(tim(end-1));
@@ -135,12 +136,12 @@ pred_8 = zeros(length(tim),1);
 pred_no_shallow = zeros(length(tim),1);
 
 %Loop times; Calculate nodal corrections daily
-step=24;
+step=24*num_per_hr;
 for i = 1:step:length(tim)
     if i+step-1 <=length(tim)
     %Get predicted tide for same period
         pred_all(i:i+step-1) = t_predic(tim(i:i+step-1),tidestruc,'latitude',lat,'synthesis',snr);
-        pred_8(i:i+step-1) = t_predic(tim(i:i+step-1),tidestruc_8,'latitude',lat,'synthesis',snr); 
+        pred_8(i:i+step-1) = t_predic(tim(i:i+step-1),tidestruc_8,'latitude',lat,'synthesis',snr);
         pred_no_shallow(i:i+step-1) = t_predic(tim(i:i+step-1),tidestruc_noshallow,'latitude',lat,'synthesis',snr);
     else 
         pred_all(i:end) = t_predic(tim(i:end),tidestruc,'latitude',lat,'synthesis',snr);
