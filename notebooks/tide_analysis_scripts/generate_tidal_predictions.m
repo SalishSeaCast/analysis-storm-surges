@@ -126,8 +126,8 @@ end
 %Time
 start_date=datenum(starts);
 end_date=datenum(ends);
-num_per_hr = 12
-tim = start_date:1/24/num_per_hour:end_date;
+num_per_hr = 12;
+tim = start_date:1/24/num_per_hr:end_date;
 
 [startyear,~,~,~,~,~] = datevec(tim(1));
 [endyear,~,~,~,~,~] = datevec(tim(end-1));
