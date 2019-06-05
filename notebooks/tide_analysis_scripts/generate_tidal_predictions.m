@@ -1,4 +1,4 @@
-function [pred_all,pred_8,pred_no_shallow, tim] = generate_tidal_predictions(filename,location, starts, ends, type, exclude_long, cut_off, ssh_units, time_zone)
+function [pred_all,pred_8,pred_no_shallow, tim] = generate_tidal_predictions(filename,location, starts, ends, type, exclude_long, cut_off, ssh_units, time_zone, num_per_hr, offset)
 % Uses t_tide to calculates tidal predictions for all siginificant 
 %constituents, 8 constituents, or all constituents except shallow water.
 %The 8 constituents are: M2,K1,O1,P1,Q1,N2,S2,K2
@@ -29,6 +29,10 @@ function [pred_all,pred_8,pred_no_shallow, tim] = generate_tidal_predictions(fil
 
 %time_zone is the time zone of the water level measurements in the time
 %series file or the phase in the constituent file
+
+%number per hour 6 for 10 minute files, 1 for hourly files
+
+%offset in days 1/(12*24.) for 5 minutes
 
 %Outputs:
 %pred_all is a tidal prediction using all significant constituents
@@ -126,8 +130,7 @@ end
 %Time
 start_date=datenum(starts);
 end_date=datenum(ends);
-num_per_hr = 12;
-tim = start_date:1/24/num_per_hr:end_date;
+tim = start_date+offset:1/24/num_per_hr:end_date-offset;
 
 [startyear,~,~,~,~,~] = datevec(tim(1));
 [endyear,~,~,~,~,~] = datevec(tim(end-1));
@@ -157,6 +160,7 @@ plot(tim,pred_8,'b',tim,pred_all,'m',tim,pred_all-pred_8,'r')
 legend('predictions 8 const.', 'predictions all','difference','Location','EastOutside')
 xlabel('time')
 ylabel('water level elevation (m CD)')
+title(location)
 datetick('x','mm/yyyy')
 
 subplot(3,1,2)
